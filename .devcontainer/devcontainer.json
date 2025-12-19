@@ -1,0 +1,36 @@
+{
+    "name": "C++ Dev",
+	"containerName": "modbusclient",
+    "dockerFile": "../Dockerfile.dev",
+    "context": "..",
+
+    "remoteUser": "root",
+
+    "workspaceFolder": "/app",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/app,type=bind",
+
+    "service": "api",
+    "forwardPorts": [8000],
+    "dockerComposeFile": "docker-compose.yml",
+
+    "runArgs": [
+        "--name=modbusclient",
+        "--device=/dev/ttyUSB0",
+        "--group-add=dialout"
+    ],
+
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode.cpptools",
+                "ms-vscode.cmake-tools",
+                "twxs.cmake",
+                "ms-vscode.cpptools-extension-pack"
+            ],
+            "settings": {
+                "cmake.generator": "Unix Makefiles",
+                "cmake.buildDirectory": "${workspaceFolder}/build"
+            }
+        }
+    }
+}

@@ -1,0 +1,40 @@
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# =========================
+# Install build tools
+# =========================
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    g++ \
+    make \
+    cmake \
+    gdb \
+    git \
+    pkg-config \
+    \
+    # C++ libraries
+    libmodbus-dev \
+    libjsoncpp-dev \
+    \
+    && rm -rf /var/lib/apt/lists/*
+
+EXPOSE 8000    
+# =========================
+# Working directory
+# =========================
+WORKDIR /app
+
+# Copy toàn bộ source
+# COPY . .
+
+# Build library
+# RUN cmake -S Board_Extension/source -B Board_Extension/build && \
+#     cmake --build Board_Extension/build && \
+#     cmake --install Board_Extension/build --prefix /usr/local
+
+# =========================
+# Default command
+# =========================
+CMD ["/bin/bash"]

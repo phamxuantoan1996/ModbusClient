@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  api:
+    image: my_api_image
+    container_name: api_service
+
+    # Map serial port từ host vào container
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
+
+    # Quyền truy cập thiết bị (quan trọng)
+    privileged: true
+
+    # Expose REST API
+    ports:
+      - "8000:8000"   # BỎ nếu chỉ dùng container ↔ container
+
+    networks:
+      - app_net
+
+    restart: unless-stopped
+
+networks:
+  app_net:
+    driver: bridge
