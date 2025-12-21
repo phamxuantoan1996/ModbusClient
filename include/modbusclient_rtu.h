@@ -12,5 +12,16 @@
 #define MODBUS_RTU_BAUDRATE_38400 38400
 #define MODBUS_RTU_BAUDRATE_115200 115200
 
+struct ModbusRTUConfig : public ModbusConfig
+{
+    /* data */
+    std::string serial_port;
+    uint32_t baud_rare;
+    uint8_t data_bit;
+    uint8_t parity;
+    uint8_t stop_bit;
+};
+
+
 
 #endif
