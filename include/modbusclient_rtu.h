@@ -27,6 +27,8 @@ struct ModbusRTUConfig : public ModbusConfig
 
 class ModbusClientRTU : public ModbusClient
 {
+
+    public:
     ModbusClientRTU(ModbusConfig modbus_config);
 };
 #endif

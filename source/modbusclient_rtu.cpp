@@ -2,5 +2,5 @@
 
 ModbusClientRTU::ModbusClientRTU(ModbusConfig modbus_config)
 {
-    
+
 }
