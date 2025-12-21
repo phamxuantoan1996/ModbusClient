@@ -23,6 +23,8 @@ struct ModbusRTUConfig : public ModbusConfig
     uint8_t data_bit;
     uint8_t parity;
     uint8_t stop_bit;
+    uint32_t timeout;
+    uint8_t num_try;
 };
 
 class ModbusClientRTU : public ModbusClient
