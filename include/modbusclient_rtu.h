@@ -36,5 +36,6 @@ class ModbusClientRTU : public ModbusClient
     public:
     ModbusClientRTU(ModbusConfig modbus_config);
     bool connect() override;
+    void disconnect() override;
 };
 #endif

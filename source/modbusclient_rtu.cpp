@@ -11,3 +11,8 @@ bool ModbusClientRTU::connect()
     
     return ret;
 }
+
+void ModbusClientRTU::disconnect()
+{
+    
+}
