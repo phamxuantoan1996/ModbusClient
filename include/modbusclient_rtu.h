@@ -13,7 +13,7 @@
 #define MODBUS_RTU_BAUDRATE_115200 115200
 
 #define MODBUS_RTU_STOPBIT_1 1
-#define MODBUS_RTU_STOPBIT_1 2
+#define MODBUS_RTU_STOPBIT_2 2
 
 struct ModbusRTUConfig : public ModbusConfig
 {
