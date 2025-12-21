@@ -1,8 +1,8 @@
 #include <modbusclient_rtu.h>
 
-ModbusClientRTU::ModbusClientRTU(ModbusConfig modbus_config)
+ModbusClientRTU::ModbusClientRTU(ModbusRTUConfig config)
 {
-
+    
 }
 
 bool ModbusClientRTU::connect()

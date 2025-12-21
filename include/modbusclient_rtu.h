@@ -34,7 +34,7 @@ class ModbusClientRTU : public ModbusClient
         uint32_t timeout;
         uint8_t num_try;
     public:
-    ModbusClientRTU(ModbusConfig modbus_config);
+    ModbusClientRTU(ModbusRTUConfig config);
     bool connect() override;
     void disconnect() override;
     bool reconnect() override;
