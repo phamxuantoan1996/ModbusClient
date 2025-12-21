@@ -35,5 +35,6 @@ class ModbusClientRTU : public ModbusClient
         uint8_t num_try;
     public:
     ModbusClientRTU(ModbusConfig modbus_config);
+    bool connect() override;
 };
 #endif

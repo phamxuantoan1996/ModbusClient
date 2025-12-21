@@ -4,3 +4,10 @@ ModbusClientRTU::ModbusClientRTU(ModbusConfig modbus_config)
 {
 
 }
+
+bool ModbusClientRTU::connect()
+{
+    bool ret = false;
+    
+    return ret;
+}
