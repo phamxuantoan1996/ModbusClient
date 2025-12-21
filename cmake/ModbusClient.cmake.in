@@ -1,0 +1,8 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+find_dependency(PkgConfig)
+find_dependency(Threads)
+
+include("${CMAKE_CURRENT_LIST_DIR}/Board_Extension_ModbusTargets.cmake")
