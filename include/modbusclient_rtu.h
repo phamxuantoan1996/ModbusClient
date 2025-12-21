@@ -27,7 +27,10 @@ struct ModbusRTUConfig : public ModbusConfig
 
 class ModbusClientRTU : public ModbusClient
 {
-
+    private:
+        modbus_t *ctx;
+        uint32_t timeout;
+        uint8_t num_try;
     public:
     ModbusClientRTU(ModbusConfig modbus_config);
 };
