@@ -14,5 +14,12 @@ bool ModbusClientRTU::connect()
 
 void ModbusClientRTU::disconnect()
 {
-    
+
+}
+
+bool ModbusClientRTU::reconnect()
+{
+    bool ret = false;
+
+    return ret;
 }
