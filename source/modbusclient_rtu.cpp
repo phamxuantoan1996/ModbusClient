@@ -30,3 +30,10 @@ std::list<uint16_t> ModbusClientRTU::readHoldingRegisters(uint8_t slave_id,uint1
 
     return values;
 }
+
+bool ModbusClientRTU::writeHoldingRegisters(uint8_t slave_id,uint16_t start_address,std::list<uint16_t> values)
+{
+    bool ret = false;
+
+    return ret;
+}
