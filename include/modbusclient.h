@@ -9,6 +9,13 @@
 #include <modbus/modbus.h>
 #include <list>
 
+struct ModbusConfig
+{
+    /* data */
+    virtual ~ModbusConfig() = default;
+};
+
+
 class modbusclient
 {
 private:
