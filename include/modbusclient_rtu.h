@@ -25,8 +25,8 @@ struct ModbusRTUConfig : public ModbusConfig
     uint8_t stop_bit;
 };
 
-class modbusclient_rtu : public modbusclient
+class ModbusClientRTU : public ModbusClient
 {
-    modbusclient_rtu(ModbusConfig modbus_config);
+    ModbusClientRTU(ModbusConfig modbus_config);
 };
 #endif
