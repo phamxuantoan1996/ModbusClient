@@ -13,14 +13,19 @@ ModbusClientRTU::ModbusClientRTU(ModbusRTUConfig config)
 
 bool ModbusClientRTU::connect()
 {
-    bool ret = false;
-    
+    bool ret = true;
+    if(modbus_connect(ctx) == -1)
+    {
+        std::cerr << "Connection failed: " << modbus_strerror(errno) << "\n";
+        modbus_free(ctx);
+        ret = false;
+    }
     return ret;
 }
 
 void ModbusClientRTU::disconnect()
 {
-
+    modbus_close(ctx);
 }
 
 bool ModbusClientRTU::reconnect()
