@@ -37,9 +37,9 @@ bool ModbusClientRTU::reconnect()
 
 std::list<uint16_t> ModbusClientRTU::readHoldingRegisters(uint8_t slave_id,uint16_t start_address,uint16_t num_of_reg)
 {
-    std::list<uint16_t> values;
+    std::list<uint16_t> value;
 
-    return values;
+    return value;
 }
 
 bool ModbusClientRTU::writeHoldingRegisters(uint8_t slave_id,uint16_t start_address,std::list<uint16_t> values)
@@ -49,9 +49,8 @@ bool ModbusClientRTU::writeHoldingRegisters(uint8_t slave_id,uint16_t start_addr
     return ret;
 }
 
-std::list<uint16_t> ModbusClientRTU::readInputRegisters(uint8_t slave_id,uint16_t start_address,uint16_t num_of_reg)
+int ModbusClientRTU::readInputRegisters(uint8_t slave_id,uint16_t start_address,uint16_t num_of_reg,uint16_t *values)
 {
-    std::list<uint16_t> values;
-
-    return values;
+    
+    return 0;
 }
