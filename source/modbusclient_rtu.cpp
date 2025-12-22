@@ -1,8 +1,14 @@
 #include <modbusclient_rtu.h>
 
-ModbusClientRTU::ModbusClientRTU(ModbusConfig modbus_config)
+ModbusClientRTU::ModbusClientRTU(ModbusRTUConfig config)
 {
-
+    num_try = config.num_try;
+    timeout = config.timeout;
+    ctx = modbus_new_rtu(config.serial_port.c_str(),config.baud_rare,config.parity,config.data_bit,config.stop_bit);
+    if (!ctx) {
+        std::cerr << "Unable to create modbus context\n";
+    }
+    modbus_set_response_timeout(ctx, config.timeout, 0);
 }
 
 bool ModbusClientRTU::connect()
