@@ -25,7 +25,7 @@ public:
     virtual void disconnect() = 0;
     virtual bool reconnect() = 0;
     virtual int readHoldingRegisters(uint8_t slave_id,uint16_t start_address,uint16_t num_of_reg,uint16_t *values) = 0;
-    virtual bool writeHoldingRegisters(uint8_t slave_id,uint16_t start_address,std::list<uint16_t> values) = 0;
+    virtual int writeHoldingRegisters(uint8_t slave_id,uint16_t start_address,uint16_t num_of_reg,uint16_t *values) = 0;
     virtual int readInputRegisters(uint8_t slave_id,uint16_t start_address,uint16_t num_of_reg,uint16_t *values) = 0;
     virtual ~ModbusClient() = default;
 };

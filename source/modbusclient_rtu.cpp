@@ -66,11 +66,33 @@ int ModbusClientRTU::readHoldingRegisters(uint8_t slave_id,uint16_t start_addres
     return errno;
 }
 
-bool ModbusClientRTU::writeHoldingRegisters(uint8_t slave_id,uint16_t start_address,std::list<uint16_t> values)
+int ModbusClientRTU::writeHoldingRegisters(uint8_t slave_id,uint16_t start_address,uint16_t num_of_reg,uint16_t *values)
 {
-    bool ret = false;
 
-    return ret;
+    modbus_set_slave(ctx, slave_id);
+
+    int rc = modbus_write_registers(ctx,start_address,num_of_reg,values);
+    if (rc == num_of_reg) 
+    {
+        return 0;
+    }
+
+    // ===== BUS ERROR → BLOCK & RECONNECT =====
+    if (errno == EBADF || errno == EIO || errno == ECONNRESET) 
+    {
+        std::cerr << "[BUS ERROR] " << modbus_strerror(errno) << "\n";
+    }
+    // ===== SLAVE ERROR → SKIP =====
+    else if (errno == ETIMEDOUT) 
+    {
+        std::cerr << "[SLAVE " << slave_id << "] timeout → skip write\n";
+    }
+    else
+    {
+        // ===== OTHER ERROR → RETRY =====
+        std::cerr << "[ERROR] " << modbus_strerror(errno) << " → retry\n";
+    }
+    return errno;
 }
 
 int ModbusClientRTU::readInputRegisters(uint8_t slave_id,uint16_t start_address,uint16_t num_of_reg,uint16_t *values)
