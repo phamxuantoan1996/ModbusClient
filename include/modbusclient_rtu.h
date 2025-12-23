@@ -38,7 +38,7 @@ class ModbusClientRTU : public ModbusClient
     bool connect() override;
     void disconnect() override;
     bool reconnect() override;
-    std::list<uint16_t> readHoldingRegisters(uint8_t slave_id,uint16_t start_address,uint16_t num_of_reg) override;
+    int readHoldingRegisters(uint8_t slave_id,uint16_t start_address,uint16_t num_of_reg,uint16_t *values) override;
     bool writeHoldingRegisters(uint8_t slave_id,uint16_t start_address,std::list<uint16_t> values) override;
     int readInputRegisters(uint8_t slave_id,uint16_t start_address,uint16_t num_of_reg,uint16_t *values) override;
 };

@@ -35,11 +35,35 @@ bool ModbusClientRTU::reconnect()
     return ret;
 }
 
-std::list<uint16_t> ModbusClientRTU::readHoldingRegisters(uint8_t slave_id,uint16_t start_address,uint16_t num_of_reg)
+int ModbusClientRTU::readHoldingRegisters(uint8_t slave_id,uint16_t start_address,uint16_t num_of_reg,uint16_t *values)
 {
-    std::list<uint16_t> value;
+    if(modbus_set_slave(ctx,slave_id) < 0)
+    {
+        std::cerr << "Invalid slave id\n";
+        return errno;
+    }
 
-    return value;
+    int rc = modbus_read_registers(ctx,start_address,num_of_reg,values);
+
+    if (rc == num_of_reg)
+    {
+        /* code */
+        return 0;
+    }
+    
+    if (errno == EBADF || errno == EIO || errno == ECONNRESET)
+    {
+        std::cerr << "[BUS ERROR] " << modbus_strerror(errno) << std::endl;
+    }
+
+    if (errno == ETIMEDOUT) 
+    {
+            std::cerr << "[SLAVE " << slave_id << "] timeout → skip\n";
+    }
+
+    std::cerr << "[OTHER ERROR] " << modbus_strerror(errno) << " → retry\n";
+    
+    return errno;
 }
 
 bool ModbusClientRTU::writeHoldingRegisters(uint8_t slave_id,uint16_t start_address,std::list<uint16_t> values)
