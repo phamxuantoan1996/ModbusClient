@@ -18,15 +18,20 @@ int main(int argc,char *argv[])
     if(mb_client.connect())
     {
         std::cout << "connection success\n";
-        std::this_thread::sleep_for(std::chrono::seconds(2));
-        mb_client.disconnect();
     }
     else
     {
         std::cout << "connection failure\n";
+        return -1;
     }
 
+    while (1)
+    {
+        /* code */
+        uint16_t input[10];
+        mb_client.readInputRegisters(1,0,10,input);
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
     
-
     return 0;
 }

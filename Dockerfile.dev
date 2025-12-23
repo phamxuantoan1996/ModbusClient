@@ -30,9 +30,9 @@ WORKDIR /app
 # COPY . .
 
 # Build library
-# RUN cmake -S Board_Extension/source -B Board_Extension/build && \
-#     cmake --build Board_Extension/build && \
-#     cmake --install Board_Extension/build --prefix /usr/local
+# RUN cmake -S source -B build && \
+#     cmake --build build && \
+#     cmake --install build --prefix /usr/local
 
 # =========================
 # Default command
