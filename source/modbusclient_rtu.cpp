@@ -63,7 +63,7 @@ int ModbusClientRTU::readHoldingRegisters(uint8_t slave_id,uint16_t start_addres
     {
         std::cerr << "[OTHER ERROR] " << modbus_strerror(errno) << " → retry\n";
     }
-    
+
     return errno;
 }
 
@@ -116,13 +116,13 @@ int ModbusClientRTU::readInputRegisters(uint8_t slave_id,uint16_t start_address,
     {
         std::cerr << "[BUS ERROR] " << modbus_strerror(errno) << std::endl;
     }
-
-    if (errno == ETIMEDOUT) 
+    else if (errno == ETIMEDOUT) 
     {
             std::cerr << "[SLAVE " << slave_id << "] timeout → skip\n";
     }
-
-    std::cerr << "[OTHER ERROR] " << modbus_strerror(errno) << " → retry\n";
-    
+    else
+    {
+        std::cerr << "[OTHER ERROR] " << modbus_strerror(errno) << " → retry\n";
+    }
     return errno;
 }
