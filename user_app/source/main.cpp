@@ -6,7 +6,7 @@
 int main(int argc,char *argv[])
 {
     ModbusRTUConfig mb_cgf;
-    mb_cgf.serial_port = "/dev/ttyUSB0";
+    mb_cgf.serial_port = "/dev/CH340";
     mb_cgf.baud_rare = MODBUS_RTU_BAUDRATE_115200;
     mb_cgf.data_bit = MODBUS_RTU_DATABIT_8;
     mb_cgf.parity = MODBUS_RTU_PARITY_NONE;

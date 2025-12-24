@@ -15,8 +15,8 @@
 
     "runArgs": [
         "--name=modbusclient",
-        "--device=/dev/ttyUSB0",
-        "--group-add=dialout"
+        "--privileged",
+        "-v", "/dev:/dev"
     ],
 
     "customizations": {
