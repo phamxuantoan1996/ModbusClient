@@ -29,7 +29,11 @@ int main(int argc,char *argv[])
     {
         /* code */
         uint16_t input[10];
-        mb_client.readHoldingRegisters(1,0,10,input);
+        int ret = mb_client.readHoldingRegisters(1,0,10,input);
+        if(ret == EBADF || ret == EIO || ret == ECONNRESET)
+        {
+            while(!mb_client.reconnect());
+        }
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
     

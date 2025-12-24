@@ -30,9 +30,19 @@ void ModbusClientRTU::disconnect()
 
 bool ModbusClientRTU::reconnect()
 {
-    bool ret = false;
-
-    return ret;
+    uint16_t count = num_try;
+    while (count--)
+    {
+        /* code */
+        if(modbus_connect(ctx) == 0)
+        {
+            std::cerr << "[BUS] reconnect success\n";
+            return true;
+        }
+        std::cerr << "[BUS] reconnect failed: " << modbus_strerror(errno) << " → retry\n";
+        std::this_thread::sleep_for(std::chrono::seconds(timeout));
+    }
+    return false;
 }
 
 int ModbusClientRTU::readHoldingRegisters(uint8_t slave_id,uint16_t start_address,uint16_t num_of_reg,uint16_t *values)

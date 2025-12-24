@@ -7,6 +7,8 @@
 #include <cerrno>
 #include <cstring>
 #include <modbus/modbus.h>
+#include <thread>
+#include <chrono>
 #include <list>
 
 struct ModbusConfig
