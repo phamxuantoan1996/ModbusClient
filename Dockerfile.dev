@@ -20,7 +20,12 @@ RUN apt-get update && apt-get install -y \
     \
     && rm -rf /var/lib/apt/lists/*
 
-EXPOSE 8000    
+RUN git clone --depth=1 https://github.com/yhirose/cpp-httplib.git /tmp/cpp-httplib && \
+    cp /tmp/cpp-httplib/httplib.h /usr/local/include/ && \
+    rm -rf /tmp/cpp-httplib
+
+EXPOSE 9000
+EXPOSE 9001    
 # =========================
 # Working directory
 # =========================

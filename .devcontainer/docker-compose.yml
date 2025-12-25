@@ -5,16 +5,20 @@ services:
     image: my_api_image
     container_name: api_service
 
-    # Map serial port từ host vào container
-    devices:
-      - "/dev/ttyUSB0:/dev/ttyUSB0"
+    # Map serial port
 
     # Quyền truy cập thiết bị (quan trọng)
     privileged: true
 
     # Expose REST API
-    ports:
-      - "8000:8000"   # BỎ nếu chỉ dùng container ↔ container
+    services:
+      rest_api:
+        build: .
+        env_file:
+          - .env.dev
+        ports:
+          - "9000:9000"   # BỎ nếu chỉ dùng container ↔ container
+          - "9001:9001"
 
     networks:
       - app_net
