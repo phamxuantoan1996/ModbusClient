@@ -32,12 +32,12 @@ EXPOSE 9001
 WORKDIR /app
 
 # Copy toàn bộ source
-# COPY . .
+COPY . .
 
 # Build library
-# RUN cmake -S source -B build && \
-#     cmake --build build && \
-#     cmake --install build --prefix /usr/local
+RUN cmake -S source -B build && \
+    cmake --build build && \
+    cmake --install build --prefix /usr/local
 
 # =========================
 # Default command

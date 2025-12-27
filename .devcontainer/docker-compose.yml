@@ -1,24 +1,29 @@
 version: "3.9"
 
 services:
-  api:
-    image: my_api_image
-    container_name: api_service
+  modbusclient:
+    image: modbusclient:dev # ten image
+    build:
+      context: ..
+      dockerfile: Dockerfile.dev # ten Docker file
 
-    # Map serial port
+    container_name: modbusclient # ten container
+    
+    env_file:
+      - .env.dev # ten file cau hinh env
 
-    # Quyền truy cập thiết bị (quan trọng)
-    privileged: true
+    # privileged: true # dung cho dev
+    devices:
+      - /dev/CH340:/dev/CH340 # dung cho prod
+    group_add:
+      - dialout
 
-    # Expose REST API
-    services:
-      rest_api:
-        build: .
-        env_file:
-          - .env.dev
-        ports:
-          - "9000:9000"   # BỎ nếu chỉ dùng container ↔ container
-          - "9001:9001"
+    ports:
+      - "9000:9000" # setup port
+      - "9001:9001" 
+
+    tty: true
+    stdin_open: true
 
     networks:
       - app_net

@@ -8,11 +8,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(ModbusClient REQUIRED)
 find_package(Threads REQUIRED)
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(JSONCPP jsoncpp)
+link_libraries(${JSONCPP_LIBRARIES})
+
 add_executable(app
     main.cpp
 )
 
 # 🔹 Link bằng target export (QUAN TRỌNG)
 target_link_libraries(app
-    PRIVATE ModbusClient::ModbusClient Threads::Threads
+    PRIVATE ModbusClient::ModbusClient Threads::Threads ${JSONCPP_LIBRARIES}
 )

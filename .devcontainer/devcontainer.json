@@ -9,16 +9,14 @@
     "workspaceFolder": "/app",
     "workspaceMount": "source=${localWorkspaceFolder},target=/app,type=bind",
 
-    "service": "api",
-    "forwardPorts": [8000],
+    "service": "restapi",
+    "forwardPorts": [9000,9001],
     "dockerComposeFile": "docker-compose.yml",
 
     "runArgs": [
-        "--name=modbusclient",
-        "--privileged",
+        "--privileged", 
         "-v", "/dev:/dev"
     ],
-
     "customizations": {
         "vscode": {
             "extensions": [
