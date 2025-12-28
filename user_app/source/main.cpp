@@ -46,7 +46,7 @@ void http_server_init()
         Json::StreamWriterBuilder writer;
         res.set_content(Json::writeString(writer, root), "application/json");
     });
-    http_server.Post("/holding", [](const httplib::Request& req, httplib::Response& res) {
+    http_server.Post("/holding_register", [](const httplib::Request& req, httplib::Response& res) {
         std::istringstream ss(req.body);
         Json::CharReaderBuilder rbuilder;
         Json::Value root_recv;
@@ -154,6 +154,19 @@ int main(int argc,char *argv[])
     while (running)
     {
         /* code */
+        if(!list_hold_regs.empty())
+        {
+            auto item = list_hold_regs.begin();
+            int ret = mb_client.writeHoldingRegisters(item->slave_id,item->start_addr,item->num_of_reg,item->values);
+            delete item->values;
+            list_hold_regs.erase(item);
+            if(ret == EBADF || ret == EIO || ret == ECONNRESET)
+            {
+                while(!mb_client.reconnect());
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(25));
+            continue;
+        }
         
         for(Reg_Info_Structure item : list_input_regs)
         {
