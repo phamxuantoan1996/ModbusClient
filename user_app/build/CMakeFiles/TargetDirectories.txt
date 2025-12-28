@@ -1,0 +1,3 @@
+/app/user_app/build/CMakeFiles/app.dir
+/app/user_app/build/CMakeFiles/edit_cache.dir
+/app/user_app/build/CMakeFiles/rebuild_cache.dir

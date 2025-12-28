@@ -37,14 +37,52 @@ void terminal_sig_callback(int)
 
 void http_server_init()
 {
-    http_server.Get("/status", [](const httplib::Request& req, httplib::Response& res) {
-        Json::Value root;
+    http_server.Get("/input_register", [](const httplib::Request& req, httplib::Response& res) {
+        if (!req.has_param("slave_id") ||
+            !req.has_param("start_address") ||
+            !req.has_param("num_of_reg")) {
+            res.status = 400;
+            res.set_content("Missing parameters", "text/plain");
+            return;
+        }
 
-        root["commodity"] = 1;
-        root["robot_state"] = 1;
+        Json::Value root_response;
+        Json::Value array_values(Json::arrayValue);
+
+
+        try {
+            int slave_id;
+            int start_address;
+            int num_of_reg;
+            uint16_t *values = nullptr;
+            slave_id = std::stoi(req.get_param_value("slave_id"));
+            start_address  = std::stoi(req.get_param_value("start_address"));
+            num_of_reg = std::stoi(req.get_param_value("num_of_reg"));
+            // std::cout << "slave id : " << slave_id << "\nstart address : " << start_address << "\nnum of reg :" << num_of_reg << std::endl;
+            for (Reg_Info_Structure item : list_input_regs)
+            {
+                /* code */
+                if(item.slave_id == slave_id && item.start_addr == start_address && item.num_of_reg == num_of_reg)
+                {
+                    values = item.values;
+                }
+            }
+
+            if(values != nullptr)
+            {
+                for(int16_t i = 0; i < num_of_reg; i++)
+                {
+                    array_values.append(values[i]);
+                }
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "Invalid number: " << e.what() << std::endl;
+        }
+
+        root_response["response"] = array_values;
 
         Json::StreamWriterBuilder writer;
-        res.set_content(Json::writeString(writer, root), "application/json");
+        res.set_content(Json::writeString(writer, root_response), "application/json");
     });
     http_server.Post("/holding_register", [](const httplib::Request& req, httplib::Response& res) {
         std::istringstream ss(req.body);
