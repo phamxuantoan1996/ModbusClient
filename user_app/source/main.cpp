@@ -26,8 +26,10 @@ struct Reg_Info_Structure
 
 std::atomic<bool> running{true};
 httplib::Server http_server;
-std::list<Reg_Info_Structure> list_input_regs;
-std::list<Reg_Info_Structure> list_hold_regs;
+std::vector<Reg_Info_Structure> list_input_regs;
+std::vector<Reg_Info_Structure> list_hold_regs;
+std::mutex lock_list_input_regs;
+std::mutex lock_list_holding_regs;
 
 
 void terminal_sig_callback(int) 
@@ -50,7 +52,8 @@ void http_server_init()
         Json::Value array_values(Json::arrayValue);
 
 
-        try {
+        try 
+        {
             int slave_id;
             int start_address;
             int num_of_reg;
@@ -58,13 +61,15 @@ void http_server_init()
             slave_id = std::stoi(req.get_param_value("slave_id"));
             start_address  = std::stoi(req.get_param_value("start_address"));
             num_of_reg = std::stoi(req.get_param_value("num_of_reg"));
-            // std::cout << "slave id : " << slave_id << "\nstart address : " << start_address << "\nnum of reg :" << num_of_reg << std::endl;
-            for (Reg_Info_Structure item : list_input_regs)
             {
-                /* code */
-                if(item.slave_id == slave_id && item.start_addr == start_address && item.num_of_reg == num_of_reg)
+                std::lock_guard<std::mutex> lock(lock_list_input_regs);
+                for (Reg_Info_Structure item : list_input_regs)
                 {
-                    values = item.values;
+                    /* code */
+                    if(item.slave_id == slave_id && item.start_addr == start_address && item.num_of_reg == num_of_reg)
+                    {
+                        values = item.values;
+                    }
                 }
             }
 
@@ -75,7 +80,9 @@ void http_server_init()
                     array_values.append(values[i]);
                 }
             }
-        } catch (const std::exception& e) {
+        } 
+        catch (const std::exception& e) 
+        {
             std::cerr << "Invalid number: " << e.what() << std::endl;
         }
 
@@ -118,7 +125,10 @@ void http_server_init()
                         holding_req.values[count] = value.asInt();
                         count++;
                     }
-                    list_hold_regs.push_back(holding_req);
+                    {
+                        std::lock_guard<std::mutex> lock(lock_list_holding_regs);
+                        list_hold_regs.push_back(holding_req);
+                    }
                     check = true;
                 }
             }
@@ -189,36 +199,69 @@ int main(int argc,char *argv[])
         std::cout << "HTTP server stopped.\n";
     });
 
+    uint16_t count_input_reg = 0;
+    uint16_t size_list_input_regs = list_input_regs.size();
+
     while (running)
     {
         /* code */
-        if(!list_hold_regs.empty())
         {
-            auto item = list_hold_regs.begin();
-            int ret = mb_client.writeHoldingRegisters(item->slave_id,item->start_addr,item->num_of_reg,item->values);
-            delete item->values;
-            list_hold_regs.erase(item);
-            if(ret == EBADF || ret == EIO || ret == ECONNRESET)
+            // std::lock_guard<std::mutex> lock(lock_list_holding_regs);
+            // if(!list_hold_regs.empty())
+            // {
+            //     auto item = list_hold_regs.begin();
+            //     int ret = mb_client.writeHoldingRegisters(item->slave_id,item->start_addr,item->num_of_reg,item->values);
+            //     delete[] item->values;
+            //     list_hold_regs.erase(item);
+            //     if(ret == EBADF || ret == EIO || ret == ECONNRESET)
+            //     {
+            //         while(!mb_client.reconnect());
+            //     }
+            //     std::this_thread::sleep_for(std::chrono::milliseconds(25));
+            //     continue;
+            // }
+            Reg_Info_Structure item = {0,0,0,nullptr};
             {
-                while(!mb_client.reconnect());
+                std::lock_guard<std::mutex> lock(lock_list_holding_regs);
+                if(!list_hold_regs.empty())
+                {
+                    item = list_hold_regs.back();
+                    list_hold_regs.pop_back();
+                }
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(25));
-            continue;
-        }
-        
-        for(Reg_Info_Structure item : list_input_regs)
-        {
+            if(item.values != nullptr)
+            {
+                int r = 0;
+                int ret = mb_client.writeHoldingRegisters(item.slave_id,item.start_addr,item.num_of_reg,item.values);
+                delete[] item.values;
+                if(ret == EBADF || ret == EIO || ret == ECONNRESET)
+                {
+                    while(!mb_client.reconnect());
+                }
+                std::this_thread::sleep_for(std::chrono::milliseconds(25));
+            }
+        }    
 
-            int ret = 0;
-            ret = mb_client.readInputRegisters(item.slave_id,item.start_addr,item.num_of_reg,item.values);
-            for(uint16_t i = 0; i < item.num_of_reg; i++)
+        {
+            Reg_Info_Structure item;
             {
-                std::cout << item.values[i] << " ";
+                std::lock_guard<std::mutex> lock(lock_list_input_regs);
+                item = list_input_regs.at(count_input_reg);
             }
-            std::cout << "\n";
-            if(ret == EBADF || ret == EIO || ret == ECONNRESET)
+
+            uint16_t *buffer = new uint16_t[item.num_of_reg];
+            int ret = 0;
+            ret = mb_client.readInputRegisters(item.slave_id,item.start_addr,item.num_of_reg,buffer);
+
             {
-                while(!mb_client.reconnect());
+                std::lock_guard<std::mutex> lock(lock_list_input_regs);
+                memcpy(item.values,buffer,sizeof(uint16_t)*item.num_of_reg);
+            }
+            delete[] buffer;
+            count_input_reg++;
+            if(count_input_reg == size_list_input_regs)
+            {
+                count_input_reg = 0;
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(25));
         }

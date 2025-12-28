@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/app.dir/main.cpp.o -o app  -ljsoncpp /usr/local/lib/libModbusClient.a -ljsoncpp /usr/lib/x86_64-linux-gnu/libmodbus.so 
