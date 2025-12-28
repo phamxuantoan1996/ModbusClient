@@ -13,6 +13,13 @@
     "forwardPorts": [9000,9001],
     "dockerComposeFile": "docker-compose.yml",
 
+    "containerEnv": {
+    "SERIAL_PORT": "/dev/CH340",
+    "BAUDRATE": "115200",
+    "REST_API_PORT":"9000",
+    "LOG_LEVEL":"debug"
+    },
+
     "runArgs": [
         "--privileged", 
         "-v", "/dev:/dev"

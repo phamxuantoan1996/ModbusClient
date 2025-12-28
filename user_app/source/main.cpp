@@ -14,7 +14,7 @@
 #include <jsoncpp/json/json.h>
 #include <sstream>
 
-struct Input_Reg_Structure
+struct Reg_Info_Structure
 {
     /* data */
     uint8_t slave_id;
@@ -23,9 +23,11 @@ struct Input_Reg_Structure
     uint16_t *values;
 };
 
+
 std::atomic<bool> running{true};
 httplib::Server http_server;
-std::list<Input_Reg_Structure> list_input_regs;
+std::list<Reg_Info_Structure> list_input_regs;
+std::list<Reg_Info_Structure> list_hold_regs;
 
 
 void terminal_sig_callback(int) 
@@ -48,7 +50,7 @@ void http_server_init()
 
 void addInputRegister(uint8_t slave_id,uint16_t start_addr,uint16_t num_of_reg)
 {
-    Input_Reg_Structure input_reg;
+    Reg_Info_Structure input_reg;
     input_reg.slave_id = slave_id;
     input_reg.start_addr = start_addr;
     input_reg.num_of_reg = num_of_reg;
@@ -97,15 +99,24 @@ int main(int argc,char *argv[])
     while (running)
     {
         /* code */
-        uint16_t input[10];
-        int ret = mb_client.readHoldingRegisters(1,0,10,input);
-        if(ret == EBADF || ret == EIO || ret == ECONNRESET)
+        
+        for(Reg_Info_Structure item : list_input_regs)
         {
-            while(!mb_client.reconnect());
+
+            int ret = 0;
+            ret = mb_client.readInputRegisters(item.slave_id,item.start_addr,item.num_of_reg,item.values);
+            for(uint16_t i = 0; i < item.num_of_reg; i++)
+            {
+                std::cout << item.values[i] << " ";
+            }
+            std::cout << "\n";
+            if(ret == EBADF || ret == EIO || ret == ECONNRESET)
+            {
+                while(!mb_client.reconnect());
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(25));
         }
-        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
-    
     http_server.stop(); 
     http_server_thread.join(); 
     return 0;
