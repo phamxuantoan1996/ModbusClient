@@ -46,6 +46,61 @@ void http_server_init()
         Json::StreamWriterBuilder writer;
         res.set_content(Json::writeString(writer, root), "application/json");
     });
+    http_server.Post("/holding", [](const httplib::Request& req, httplib::Response& res) {
+        std::istringstream ss(req.body);
+        Json::CharReaderBuilder rbuilder;
+        Json::Value root_recv;
+        std::string errs;
+
+        bool check = Json::parseFromStream(rbuilder, ss, &root_recv, &errs);
+
+        if (!check || !root_recv.isObject()) 
+        {
+            res.status = 400;
+            res.set_content("{\"error\":\"Invalid JSON\"}", "application/json");
+            return;
+        }
+
+        check = false;
+
+        if(root_recv.isMember("slave_id") && root_recv.isMember("start_address") && root_recv.isMember("num_of_reg") && root_recv.isMember("values"))
+        {
+            if(root_recv["slave_id"].isInt() && root_recv["start_address"].isInt() && root_recv["num_of_reg"].isInt() && root_recv["values"].isArray())
+            {
+                if(root_recv["values"].size() == root_recv["num_of_reg"].asInt())
+                {
+                    Reg_Info_Structure holding_req;
+                    holding_req.slave_id = root_recv["slave_id"].asInt();
+                    holding_req.start_addr = root_recv["start_id"].asInt();
+                    holding_req.num_of_reg = root_recv["num_of_reg"].asInt();
+                    holding_req.values = new uint16_t[holding_req.num_of_reg]; //free this memory when sending request is completed;
+                    uint16_t count = 0;
+                    for (const auto& value : root_recv["values"])
+                    {
+                        holding_req.values[count] = value.asInt();
+                        count++;
+                    }
+                    list_hold_regs.push_back(holding_req);
+                    check = true;
+                }
+            }
+        }
+        if(check)
+        {
+            Json::Value root_response;
+            root_response["response"] = 0;
+            Json::StreamWriterBuilder writer;
+            res.set_content(Json::writeString(writer, root_response), "application/json");
+        }
+        else
+        {
+            Json::Value root_response;
+            root_response["response"] = 1;
+            root_response["message"] = "key of json is invalid";
+            Json::StreamWriterBuilder writer;
+            res.set_content(Json::writeString(writer, root_response), "application/json");
+        }
+    });
 }
 
 void addInputRegister(uint8_t slave_id,uint16_t start_addr,uint16_t num_of_reg)
