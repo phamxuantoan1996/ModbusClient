@@ -1,0 +1,28 @@
+{
+    "type":"RTU",
+    "port":"/dev/CH340",
+    "baudrate":115200,
+    "databit":8,
+    "parity":78,
+    "stopbit":1,
+    "timeout":5,
+    "num_of_try":5,
+    "period_inquiry":10,
+    "input_regs":[
+        {
+            "slave_id":1,
+            "start_address":0,
+            "num_of_reg":10
+        },
+        {
+            "slave_id":2,
+            "start_address":0,
+            "num_of_reg":10
+        },
+        {
+            "slave_id":3,
+            "start_address":0,
+            "num_of_reg":10
+        }
+    ]
+}

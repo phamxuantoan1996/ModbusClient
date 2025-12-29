@@ -13,6 +13,7 @@
 
 #include <jsoncpp/json/json.h>
 #include <sstream>
+#include <fstream>
 
 struct Reg_Info_Structure
 {
@@ -164,20 +165,56 @@ void addInputRegister(uint8_t slave_id,uint16_t start_addr,uint16_t num_of_reg)
 
 int main(int argc,char *argv[])
 {
-    signal(SIGINT, terminal_sig_callback);
-    signal(SIGTERM, terminal_sig_callback);
+    std::ifstream file("../modbusconfig.json");
+    if (!file.is_open())
+    {
+        std::cerr << "Cannot open file to config modbus!" << std::endl;
+        return -1;
+    }
+    Json::Value root;
+    Json::CharReaderBuilder builder;
+    builder["collectComments"] = false;
+    JSONCPP_STRING errs;
+    bool ok = Json::parseFromStream(builder, file, &root, &errs);
+    if(!ok || !root.isObject())
+    {
+        std::cerr << "An error occurred in while reading the json file!" << std::endl;
+        return -1;
+    }
+    if(!root["port"].isString() || !root["baudrate"].isInt() 
+    || !root["databit"].isInt() || !root["parity"].isInt() 
+    || !root["stopbit"].isInt() || !root["timeout"].isInt()
+    || !root["num_of_try"].isInt() || !root["input_regs"].isArray()
+    || !root["period_inquiry"].isInt())
+    {
+        std::cerr << "Key of json is invalid!" << std::endl;
+        return -1;
+    }
+    uint16_t period_inquiry = root["period_inquiry"].asInt(); //ms
+    
+    for (const Json::Value& item : root["input_regs"])
+    {
+        /* code */
+        if(item["slave_id"].isInt() && item["start_address"].isInt() && item["num_of_reg"].isInt())
+        {
+            if(item["slave_id"].asInt() > 0 && item["slave_id"].asInt() < 128)
+            {
+                addInputRegister(item["slave_id"].asInt(),item["start_address"].asInt(),item["num_of_reg"].asInt());
+            }
+        }
+    }
+    
 
     ModbusRTUConfig mb_cgf;
-    mb_cgf.serial_port = "/dev/CH340";
-    mb_cgf.baud_rare = MODBUS_RTU_BAUDRATE_115200;
-    mb_cgf.data_bit = MODBUS_RTU_DATABIT_8;
-    mb_cgf.parity = MODBUS_RTU_PARITY_NONE;
-    mb_cgf.stop_bit = MODBUS_RTU_STOPBIT_1;
-    mb_cgf.num_try = 5;
-    mb_cgf.timeout = 5;
+    mb_cgf.serial_port = root["port"].asString();
+    mb_cgf.baud_rare = root["baudrate"].asInt();
+    mb_cgf.data_bit = root["databit"].asInt();
+    mb_cgf.parity = root["parity"].asInt();
+    mb_cgf.stop_bit = root["stopbit"].asInt();
+    mb_cgf.num_try = root["num_of_try"].asInt();
+    mb_cgf.timeout = root["timeout"].asInt();
 
     ModbusClientRTU mb_client(mb_cgf);
-
     if(mb_client.connect())
     {
         std::cout << "connection success\n";
@@ -188,8 +225,8 @@ int main(int argc,char *argv[])
         return -1;
     }
 
-    addInputRegister(1,0,10);
-    addInputRegister(2,0,10);
+    signal(SIGINT, terminal_sig_callback);
+    signal(SIGTERM, terminal_sig_callback);
 
     http_server_init();
     http_server.new_task_queue = [] { return new httplib::ThreadPool(2); };
@@ -206,20 +243,6 @@ int main(int argc,char *argv[])
     {
         /* code */
         {
-            // std::lock_guard<std::mutex> lock(lock_list_holding_regs);
-            // if(!list_hold_regs.empty())
-            // {
-            //     auto item = list_hold_regs.begin();
-            //     int ret = mb_client.writeHoldingRegisters(item->slave_id,item->start_addr,item->num_of_reg,item->values);
-            //     delete[] item->values;
-            //     list_hold_regs.erase(item);
-            //     if(ret == EBADF || ret == EIO || ret == ECONNRESET)
-            //     {
-            //         while(!mb_client.reconnect());
-            //     }
-            //     std::this_thread::sleep_for(std::chrono::milliseconds(25));
-            //     continue;
-            // }
             Reg_Info_Structure item = {0,0,0,nullptr};
             {
                 std::lock_guard<std::mutex> lock(lock_list_holding_regs);
@@ -241,7 +264,6 @@ int main(int argc,char *argv[])
                 std::this_thread::sleep_for(std::chrono::milliseconds(25));
             }
         }    
-
         {
             Reg_Info_Structure item;
             {
@@ -263,7 +285,7 @@ int main(int argc,char *argv[])
             {
                 count_input_reg = 0;
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(25));
+            std::this_thread::sleep_for(std::chrono::milliseconds(period_inquiry));
         }
     }
     http_server.stop(); 
